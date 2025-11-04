@@ -52,8 +52,8 @@ exports.loginUser = asyncHandler(async (req, res) => {
       res.status(401).json({ message: 'Invalid username or password' });
     }
   } else {
-    res.status(401);
-    throw new Error('Invalid username or password');
+    // If user is not found, send a specific error message instead of throwing.
+    res.status(401).json({ message: 'Invalid username or password' });
   }
 });
 

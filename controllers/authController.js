@@ -24,10 +24,9 @@ exports.registerUser = async (req, res) => {
 
     try {
     // Check for existing user (name or email)
-    let userByName = await User.findOne({ name });
-    let userByEmail = await User.findOne({ email });
-    if (userByName || userByEmail) {
-      return res.status(400).json({ message: 'Username or email already exists' });
+    let existingUser = await User.findOne({ name });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists' });
         }
 
     // Create the new user with the plain-text password.
@@ -69,7 +68,7 @@ exports.loginUser = async (req, res) => {
 
     // 2. CRITICAL CHECK: Crash Guard
     // If user is NOT found OR if the retrieved user object is missing the password hash (corrupt data), reject the login.
-    if (!user || !user.password) { 
+    if (!user) { 
         return res.status(401).json({ message: 'Invalid username or password' });
     }
 
