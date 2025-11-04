@@ -73,10 +73,10 @@ exports.loginUser = async (req, res) => {
     }
 
     // 3. Safely compare passwords
-    if (await user.matchPassword(password)) {
-      
+    if (user && (await user.matchPassword(password))) {
+
       // Remove the hash before sending the object back
-      user.password = undefined; 
+      user.password = undefined;
 
       // Login successful!
       res.json({
@@ -84,7 +84,7 @@ exports.loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         token: generateToken(user._id),
-        minBalance: user.minBalance 
+        minBalance: user.minBalance
       });
     } else {
       // Passwords didn't match
@@ -94,39 +94,4 @@ exports.loginUser = async (req, res) => {
     console.error("Login Crash Error:", error); // <-- Check this log if it still crashes!
     res.status(500).json({ message: 'Server error during login' });
   }
-};
-
-// @desc    Update minimum balance
-// @route   PUT /api/auth/settings/min-balance
-// @access  Private
-// @desc Update ONLY minimum balance (The only setting left)
-// @route PUT /api/auth/settings/min-balance
-// @access Private
-exports.updateMinBalance = async (req, res) => {
-    const { minBalance } = req.body;
-    
-    try {
-        const user = await User.findById(req.user._id).select('+email'); // Still need email for balance alerts
-        
-        if (!user) {
-            res.status(404).json({ message: 'User not found' });
-        }
-        
-        user.minBalance = Number(minBalance);
-
-        await user.save();
-        
-        // ⬅️ FIX: Return all user data needed by the frontend to update context
-        res.json({
-            message: 'Minimum balance updated.',
-            _id: user._id,
-            name: user.name, // Used for Navbar display
-            email: user.email,
-            minBalance: user.minBalance // CRITICAL: The new value
-        });
-
-    } catch (error) {
-        console.error('Error updating minimum balance:', error);
-        res.status(500).json({ message: 'Failed to update minimum balance.' });
-    }
 };
