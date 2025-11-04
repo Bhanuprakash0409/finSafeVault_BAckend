@@ -88,7 +88,7 @@ exports.getTransactions = async (req, res) => {
 // @route   POST /api/transactions
 // @access  Private
 exports.addTransaction = async (req, res) => {
-  // ⬅️ MODIFIED: Only destructure core fields
+  // ⬅️ MODIFIED: Only destructure core fields  
   const { type, amount, category, date, note } = req.body; 
 
   if (!type || !amount || !category || !date) {
