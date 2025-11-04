@@ -23,6 +23,7 @@ app.use(upload.any());
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes')); // ⬅️ ADD THIS
+app.use('/api/notes', require('./routes/noteRoutes'));
 
 // Simple check API for testing
 app.get('/', (req, res) => {
