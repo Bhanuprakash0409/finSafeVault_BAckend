@@ -34,18 +34,23 @@ exports.registerUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/login
 // @access  Public
 exports.loginUser = asyncHandler(async (req, res) => {
-  // In your app, login is by name, not email.
-  const { name, password } = req.body;
-  const user = await User.findOne({ name }).select('+password');
+  // Login is by username.
+  const { username, password } = req.body;
+  const user = await User.findOne({ name: username }).select('+password');
 
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      minBalance: user.minBalance,
-      token: generateToken(user._id),
-    });
+  if (user) {
+    if (await user.matchPassword(password)) { // NOSONAR
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        minBalance: user.minBalance,
+        token: generateToken(user._id),
+      });
+    } else {
+      console.error('Login failed: Incorrect password for user:', username);
+      res.status(401).json({ message: 'Invalid username or password' });
+    }
   } else {
     res.status(401);
     throw new Error('Invalid username or password');

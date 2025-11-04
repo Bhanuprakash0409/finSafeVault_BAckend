@@ -65,7 +65,7 @@ exports.loginUser = async (req, res) => {
 
   try {
     // 1. Find user and explicitly retrieve the hashed password
-    const user = await User.findOne({ name: username }).select('+password'); 
+    const user = await User.findOne({ name: username }).select('+password');
 
     // 2. CRITICAL CHECK: Crash Guard
     // If user is NOT found OR if the retrieved user object is missing the password hash (corrupt data), reject the login.
