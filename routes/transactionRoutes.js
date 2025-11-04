@@ -19,7 +19,7 @@ router.route('/export')
 
 router.route('/')
   .get(protect, getTransactions) 
-  .post(protect, addTransaction); 
+  .post(protect, addTransaction);
 
 router.route('/monthly-report').get(protect, getMonthlyReport); // ⬅️ Add the new route
 

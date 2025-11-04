@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const multer = require('multer');
 const connectDB = require('./db');
 
 // Load environment variables
@@ -12,8 +13,12 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors()); 
-app.use(express.json()); 
+app.use(cors());
+app.use(express.json());
+
+// Add multer middleware to handle multipart/form-data
+const upload = multer();
+app.use(upload.any());
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
