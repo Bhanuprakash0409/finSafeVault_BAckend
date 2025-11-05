@@ -1,11 +1,11 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const bodyParser = require('body-parser'); // Import body-parser
 const connectDB = require('./db');
 
-// Connect to database
-dotenv.config();
-connectDB();
+// Load environment variables
+dotenv.config(); 
 
 const app = express();
 
@@ -13,7 +13,8 @@ const app = express();
 // ➡️ CRITICAL FIX: ENSURE THESE ARE HERE AND ORDERED CORRECTLY
 // ----------------------------------------------------
 app.use(cors()); 
-app.use(express.json()); // <--- THIS LINE PARSES THE JSON BODY!!!
+app.use(bodyParser.json()); // Use body-parser to parse JSON
+app.use(express.json()); 
 
 // ----------------------------------------------------
 // ➡️ Routes (MUST come after the middleware)
@@ -29,4 +30,8 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  // Connect to database once the server is ready to listen
+  connectDB();
+  console.log(`Server running on port ${PORT}`);
+});
