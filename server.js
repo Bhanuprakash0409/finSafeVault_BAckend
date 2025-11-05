@@ -20,9 +20,9 @@ app.use(bodyParser.urlencoded({ extended: true })); // Add this line to parse UR
 app.use(express.json());
 
 // Routes
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/notes', noteRoutes);
+app.use('/api/transactions', require('./routes/transactionRoutes.js'));
+app.use('/api/auth', require('./routes/authRoutes.js'));
+app.use('/api/notes', require('./routes/noteRoutes.js'));
 
 const PORT = process.env.PORT || 5000;
 
