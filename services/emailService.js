@@ -4,10 +4,12 @@ const nodemailer = require('nodemailer');
 const FRONTEND_URL = 'https://fin-safe-vault-frontend.vercel.app'; // ⬅️ UPDATED TO LIVE DOMAIN (or similar structure)
 
 const transporter = nodemailer.createTransport({
-    // ⬅️ CRITICAL FIX: Use the SendGrid service name for Nodemailer
-    service: 'SendGrid', 
+    // ⬅️ CRITICAL FIX: Use API host and port 587 (or 25/2525) for HTTPS connection
+    host: 'smtp.sendgrid.net', 
+    port: 587, 
+    secure: false, // Use STARTTLS
     auth: {
-        // Nodemailer automatically uses 'apikey' as the username when the service is set to SendGrid
+        // ⬅️ Use the standard 'apikey' username for SendGrid
         user: 'apikey', 
         // ⬅️ Use the API Key stored in Render's environment variables
         pass: process.env.SENDGRID_API_KEY, 
