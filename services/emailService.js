@@ -1,9 +1,12 @@
 const nodemailer = require('nodemailer');
 
+// Define the live deployed frontend URL globally
+const FRONTEND_URL = 'https://fin-safe-vault-frontend.vercel.app'; // ⬅️ UPDATED TO LIVE DOMAIN (or similar structure)
+
 const transporter = nodemailer.createTransport({
-    // Use host and port instead of 'service: gmail' for better reliability
+    // Explicitly set host and secure port for reliable Gmail delivery
     host: 'smtp.gmail.com', 
-    port: 465, // Standard secure port
+    port: 465, 
     secure: true, // Use SSL/TLS
     auth: {
         user: process.env.EMAIL_SERVICE_USER,
@@ -51,7 +54,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
                 <p>Hi ${userName},</p>
                 <p>Thank you for creating an account with <strong>FinSafe Vault</strong>. We're excited to help you achieve financial clarity and security.</p>
                 <p>You can now log in to your dashboard to start tracking your income and expenses.</p>
-                <a href="http://localhost:3000/login" style="display: inline-block; padding: 10px 20px; margin: 10px 0; font-size: 16px; color: white; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Go to Dashboard</a>
+                <a href="${FRONTEND_URL}/login" style="display: inline-block; padding: 10px 20px; margin: 10px 0; font-size: 16px; color: white; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Go to Dashboard</a>
                 <br>
                 <p>Best regards,<br>The FinSafe Vault Team</p>
             </div>
@@ -67,8 +70,8 @@ const sendWelcomeEmail = async (userEmail, userName) => {
 };
 
 const sendNameChangeConfirmation = async (userEmail, newName, token) => {
-    // NOTE: Replace 'http://localhost:3000' with your actual frontend URL after deployment
-    const confirmationLink = `http://localhost:3000/confirm-name-change?token=${token}`;
+    // Uses the live domain
+    const confirmationLink = `${FRONTEND_URL}/confirm-name-change?token=${token}`;
     
     const mailOptions = {
         from: process.env.EMAIL_SERVICE_USER,
