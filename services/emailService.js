@@ -4,14 +4,16 @@ const nodemailer = require('nodemailer');
 const FRONTEND_URL = 'https://fin-safe-vault-frontend.vercel.app'; // ⬅️ UPDATED TO LIVE DOMAIN (or similar structure)
 
 const transporter = nodemailer.createTransport({
-    // Explicitly set host and secure port for reliable Gmail delivery
+    // 1. Switch to Port 587 for better compatibility on hosting servers
     host: 'smtp.gmail.com', 
-    port: 465, 
-    secure: true, // Use SSL/TLS
+    port: 587, 
+    secure: false, // 2. CRITICAL: Use 'false' for STARTTLS on port 587
     auth: {
         user: process.env.EMAIL_SERVICE_USER,
-        pass: process.env.EMAIL_SERVICE_PASS,
+        pass: process.env.EMAIL_SERVICE_PASS, // Must be the App Password
     },
+    // Optional: Add a timeout to help diagnose future issues
+    // timeout: 20000 // 20 seconds
 });
 
 const sendMinBalanceAlert = async (userEmail, userName, currentBalance, minBalanceLimit) => {
