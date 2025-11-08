@@ -21,23 +21,37 @@ const calculateNetBalance = async (userId) => {
 // @route   GET /api/transactions
 // @access  Private 
 exports.getTransactions = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const dateFilter = req.query.date; // ⬅️ NEW: Get date parameter
+    // ⬅️ NEW: Get all parameters including month/year
+    const { page, date, year, month, all } = req.query; 
+    
     const limit = 10;
-    const skip = (page - 1) * limit;
+    const skip = ((parseInt(page) || 1) - 1) * limit;
     
     // ⬅️ Build the MongoDB query object
     let query = { userId: req.user._id };
 
-    if (dateFilter) {
+    // --- Date Filtering Logic ---
+    if (date) {
         // If date is provided, filter transactions for that entire day (start to end)
-        const targetDate = new Date(dateFilter);
+        const targetDate = new Date(date);
         const nextDay = new Date(targetDate);
         nextDay.setDate(targetDate.getDate() + 1);
 
         query.date = { 
             $gte: targetDate, // Greater than or equal to the start of the day
             $lt: nextDay      // Less than the start of the next day
+        };
+    } else if (all && year && month) { 
+        // ⬅️ CRITICAL FIX: Filter by the full month/year when requested for the PDF report
+        const targetYear = parseInt(year);
+        const targetMonth = parseInt(month) - 1; // JS month is 0-indexed
+
+        const startOfMonth = new Date(targetYear, targetMonth, 1);
+        const endOfMonth = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
+
+        query.date = { 
+            $gte: startOfMonth, 
+            $lte: endOfMonth      
         };
     }
 
@@ -47,10 +61,13 @@ exports.getTransactions = async (req, res) => {
             // 1. Get the total count of documents matching the query
             Transaction.countDocuments(query),
 
-            Transaction.find(query)
-            .sort({ date: -1, createdAt: -1 })
-            .limit(limit)
-            .skip(skip),
+            (() => {
+                let transactionsQuery = Transaction.find(query).sort({ date: -1, createdAt: -1 });
+                if (!all) { // Apply pagination only if 'all' is NOT set
+                    transactionsQuery = transactionsQuery.limit(limit).skip(skip);
+                }
+                return transactionsQuery.exec();
+            })(),
 
             // 3. Get overall balance totals using an aggregation pipeline
             Transaction.aggregate([
