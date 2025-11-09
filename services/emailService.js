@@ -18,7 +18,8 @@ const transporter = nodemailer.createTransport({
 
 const sendMinBalanceAlert = async (userEmail, userName, currentBalance, minBalanceLimit) => {
     const mailOptions = {
-        from: process.env.EMAIL_SERVICE_USER,
+        // ✅ FIX: Add the 'from' address, which is required.
+        from: `FinSafe Vault <${process.env.EMAIL_SERVICE_USER}>`,
         to: userEmail,
         subject: `🚨 FinSafe Vault Alert: Low Account Balance!`,
         html: `
@@ -47,7 +48,8 @@ const sendMinBalanceAlert = async (userEmail, userName, currentBalance, minBalan
 
 const sendWelcomeEmail = async (userEmail, userName) => {
     const mailOptions = {
-        from: process.env.EMAIL_SERVICE_USER,
+        // ✅ FIX: Add the 'from' address
+        from: `FinSafe Vault <${process.env.EMAIL_SERVICE_USER}>`,
         to: userEmail,
         subject: `🎉 Welcome to FinSafe Vault, ${userName}!`,
         html: `
@@ -76,7 +78,8 @@ const sendNameChangeConfirmation = async (userEmail, newName, token) => {
     const confirmationLink = `${FRONTEND_URL}/confirm-name-change?token=${token}`;
     
     const mailOptions = {
-        from: process.env.EMAIL_SERVICE_USER,
+        // ✅ FIX: Add the 'from' address
+        from: `FinSafe Vault <${process.env.EMAIL_SERVICE_USER}>`,
         to: userEmail,
         subject: `🔒 FinSafe Vault: Confirm New Username`,
         html: `

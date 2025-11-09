@@ -126,7 +126,28 @@ exports.addTransaction = async (req, res) => {
 
     const savedTransaction = await newTransaction.save();
 
-    res.status(201).json(savedTransaction);
+    // ✅ FIX: Respond to the user immediately for a fast UI experience.
+    res.status(201).json(savedTransaction); 
+
+    // --- EFFICIENT MINIMUM BALANCE CHECK (RUNS IN BACKGROUND) ---
+    // This logic now runs *after* the response has been sent to the user.
+    try {
+        const { minBalance: minBalanceLimit, email, name } = req.user;
+        const minBalanceValue = minBalanceLimit !== undefined ? minBalanceLimit : 0;
+
+        // Only proceed if the user has set a minimum balance limit and has an email.
+        if (minBalanceValue > 0 && email) {
+            const currentBalance = await calculateNetBalance(req.user._id);
+
+            // Send alert if balance is below the defined limit.
+            if (currentBalance < minBalanceValue) {
+                await sendMinBalanceAlert(email, name, currentBalance, minBalanceValue);
+            }
+        }
+    } catch (emailError) {
+        // Log the error but don't crash the server or affect the user response.
+        console.error('Error during background minimum balance check:', emailError);
+    }
   } catch (error) {
     console.error('Error adding transaction or checking balance:', error); 
     res.status(500).json({ message: 'Server error adding transaction' });
