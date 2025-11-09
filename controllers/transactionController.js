@@ -62,7 +62,7 @@ exports.getTransactions = async (req, res) => {
             Transaction.countDocuments(query),
 
             (() => {
-                let transactionsQuery = Transaction.find(query).sort({ date: -1, createdAt: -1 });
+                let transactionsQuery = Transaction.find(query).sort({ createdAt: -1 });
                 if (!all) { // Apply pagination only if 'all' is NOT set
                     transactionsQuery = transactionsQuery.limit(limit).skip(skip);
                 }
