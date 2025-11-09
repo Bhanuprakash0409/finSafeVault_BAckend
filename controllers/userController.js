@@ -30,33 +30,6 @@ exports.registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Auth user & get token
-// @route   POST /api/users/login
-// @access  Public
-exports.loginUser = asyncHandler(async (req, res) => {
-  // Login is by username.
-  const { username, password } = req.body;
-  const user = await User.findOne({ name: username }).select('+password');
-
-  if (user) {
-    if (await user.matchPassword(password)) { // NOSONAR
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        minBalance: user.minBalance,
-        token: generateToken(user._id),
-      });
-    } else {
-      console.error('Login failed: Incorrect password for user:', username);
-      res.status(401).json({ message: 'Invalid username or password' });
-    }
-  } else {
-    // If user is not found, send a specific error message instead of throwing.
-    res.status(401).json({ message: 'Invalid username or password' });
-  }
-});
-
 // @desc    Update user profile (name, minBalance)
 // @route   PUT /api/users/profile
 // @access  Private

@@ -157,12 +157,22 @@ exports.getAnalytics = async (req, res) => {
     const userId = req.user._id;    
     
     // ⬅️ CRITICAL: Get year from query, default to current year
-    const targetYear = req.query.year ? parseInt(req.query.year) : new Date().getFullYear(); 
+    const { year, month } = req.query;
+    const targetYear = year ? parseInt(year) : new Date().getFullYear();
+    const targetMonth = month ? parseInt(month) - 1 : null; // JS month is 0-indexed
 
-    const startOfYear = new Date(targetYear, 0, 1); // January 1st
-    const endOfYear = new Date(targetYear, 11, 31, 23, 59, 59, 999); // December 31st, end of day
-
-    const dateFilter = { $gte: startOfYear, $lte: endOfYear };
+    let dateFilter;
+    if (targetMonth !== null) {
+      // Filter by specific month if provided
+      const startOfMonth = new Date(targetYear, targetMonth, 1);
+      const endOfMonth = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999);
+      dateFilter = { $gte: startOfMonth, $lte: endOfMonth };
+    } else {
+      // Default to filtering by the entire year
+      const startOfYear = new Date(targetYear, 0, 1);
+      const endOfYear = new Date(targetYear, 11, 31, 23, 59, 59, 999);
+      dateFilter = { $gte: startOfYear, $lte: endOfYear };
+    }
     
     // 1. Aggregate Expenses by Category (for Pie Chart)
     const categoryData = await Transaction.aggregate([
