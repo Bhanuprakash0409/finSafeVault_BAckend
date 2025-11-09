@@ -5,8 +5,8 @@ const FRONTEND_URL = 'https://fin-safe-vault-frontend.vercel.app'; // ⬅️ UPD
 
 const transporter = nodemailer.createTransport({
     // ⬅️ CRITICAL FIX: Use API host and port 587 (or 25/2525) for HTTPS connection
-    host: 'smtp.sendgrid.net', 
-    port: 587, 
+    host: 'smtp.sendgrid.net',
+    port: 2525, // ✅ FIX: Use port 2525 as an alternative to 587, which is often blocked on cloud platforms.
     secure: false, // Use STARTTLS
     auth: {
         // ⬅️ Use the standard 'apikey' username for SendGrid
