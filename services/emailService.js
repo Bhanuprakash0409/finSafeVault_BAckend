@@ -4,14 +4,13 @@ const nodemailer = require('nodemailer');
 const FRONTEND_URL = 'https://fin-safe-vault-frontend.vercel.app'; // ⬅️ UPDATED TO LIVE DOMAIN (or similar structure)
 
 const transporter = nodemailer.createTransport({
-    // ⬅️ CRITICAL FIX: Use API host and port 587 (or 25/2525) for HTTPS connection
-    host: 'smtp.sendgrid.net',
-    port: 2525, // ✅ FIX: Use port 2525 as an alternative to 587, which is often blocked on cloud platforms.
-    secure: false, // Use STARTTLS
+    // ✅ CRITICAL FIX: Use 'service: SendGrid'. This tells Nodemailer to use
+    // the dedicated API connection method that doesn't rely on blocked SMTP ports.
+    service: 'SendGrid', 
     auth: {
-        // ⬅️ Use the standard 'apikey' username for SendGrid
+        // SendGrid uses 'apikey' as the mandatory username.
         user: 'apikey', 
-        // ⬅️ Use the API Key stored in Render's environment variables
+        // We use the SendGrid API Key as the password.
         pass: process.env.SENDGRID_API_KEY, 
     },
 });
@@ -19,7 +18,8 @@ const transporter = nodemailer.createTransport({
 const sendMinBalanceAlert = async (userEmail, userName, currentBalance, minBalanceLimit) => {
     const mailOptions = {
         // ✅ FIX: Add the 'from' address, which is required.
-        from: `FinSafe Vault <${process.env.EMAIL_SERVICE_USER}>`,
+        // 🛑 IMPORTANT: Replace with your VERIFIED SendGrid sender email.
+        from: `FinSafe Vault <finsafevault@gmail.com>`,
         to: userEmail,
         subject: `🚨 FinSafe Vault Alert: Low Account Balance!`,
         html: `
@@ -49,7 +49,8 @@ const sendMinBalanceAlert = async (userEmail, userName, currentBalance, minBalan
 const sendWelcomeEmail = async (userEmail, userName) => {
     const mailOptions = {
         // ✅ FIX: Add the 'from' address
-        from: `FinSafe Vault <${process.env.EMAIL_SERVICE_USER}>`,
+        // 🛑 IMPORTANT: Replace with your VERIFIED SendGrid sender email.
+        from: `FinSafe Vault <your-verified-email@example.com>`,
         to: userEmail,
         subject: `🎉 Welcome to FinSafe Vault, ${userName}!`,
         html: `
@@ -79,7 +80,8 @@ const sendNameChangeConfirmation = async (userEmail, newName, token) => {
     
     const mailOptions = {
         // ✅ FIX: Add the 'from' address
-        from: `FinSafe Vault <${process.env.EMAIL_SERVICE_USER}>`,
+        // 🛑 IMPORTANT: Replace with your VERIFIED SendGrid sender email.
+        from: `FinSafe Vault <your-verified-email@example.com>`,
         to: userEmail,
         subject: `🔒 FinSafe Vault: Confirm New Username`,
         html: `
