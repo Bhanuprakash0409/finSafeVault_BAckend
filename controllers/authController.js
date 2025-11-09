@@ -60,11 +60,12 @@ exports.registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  // 🛑 FIX: Destructure 'name' instead of 'email' from the request body
+  const { name, password } = req.body;
 
   try {
     // 1. Find user and explicitly retrieve the hashed password
-    const user = await User.findOne({ email: email }).select('+password');
+    const user = await User.findOne({ name: name }).select('+password');
 
     // 2. CRITICAL CHECK: Crash Guard
     // If user is NOT found OR if the retrieved user object is missing the password hash (corrupt data), reject the login.
@@ -73,8 +74,8 @@ exports.loginUser = async (req, res) => {
     }
 
     // 3. Safely compare passwords
-    if (user && (await user.matchPassword(password))) {
-
+    // 🛑 FIX: Use standard bcryptjs.compare
+    if (user && (await bcrypt.compare(password, user.password))) {
       // Remove the hash before sending the object back
       user.password = undefined;
 
