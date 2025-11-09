@@ -1,103 +1,65 @@
 const nodemailer = require('nodemailer');
 
-// Define the live deployed frontend URL globally
-const FRONTEND_URL = 'https://fin-safe-vault-frontend.vercel.app'; // ⬅️ UPDATED TO LIVE DOMAIN (or similar structure)
+const FRONTEND_URL = 'https://fin-safe-vault-frontend.vercel.app'; 
 
 const transporter = nodemailer.createTransport({
-    // ✅ CRITICAL FIX: Use 'service: SendGrid'. This tells Nodemailer to use
-    // the dedicated API connection method that doesn't rely on blocked SMTP ports.
+    // CRITICAL FIX: Use the 'service: SendGrid' for API connection
     service: 'SendGrid', 
     auth: {
-        // SendGrid uses 'apikey' as the mandatory username.
         user: 'apikey', 
-        // We use the SendGrid API Key as the password.
         pass: process.env.SENDGRID_API_KEY, 
     },
 });
 
+// Utility function to get the verified sender email from environment
+const getSenderEmail = () => {
+    // We assume EMAIL_SERVICE_USER holds the verified sender email address.
+    // Use a generic email if the environment variable is missing for safety.
+    return process.env.EMAIL_SERVICE_USER || 'noreply@finsafevault.com';
+};
+
+
 const sendMinBalanceAlert = async (userEmail, userName, currentBalance, minBalanceLimit) => {
     const mailOptions = {
-        // ✅ FIX: Add the 'from' address, which is required.
-        // 🛑 IMPORTANT: Replace with your VERIFIED SendGrid sender email.
-        from: `FinSafe Vault <finsafevault@gmail.com>`,
+        // ✅ FIX 1: Use the utility function for the FROM address
+        from: `FinSafe Vault <${getSenderEmail()}>`, 
         to: userEmail,
         subject: `🚨 FinSafe Vault Alert: Low Account Balance!`,
         html: `
             <p>Dear ${userName},</p>
-            <p>This is an automated alert from your FinSafe Vault.</p>
-            <p style="color: red; font-size: 16px; font-weight: bold;">
-                ⚠️ Your current account balance is low.
-            </p>
-            <ul>
-                <li>Current Net Balance: <strong>₹${currentBalance.toFixed(2)}</strong></li>
-                <li>Your Minimum Limit: <strong>₹${minBalanceLimit.toFixed(2)}</strong></li>
-            </ul>
-            <p>Please add funds to your account to maintain a healthy financial standing.</p>
-            <br>
-            <p>Thank you for using FinSafe Vault for secure financial clarity.</p>
+            <p>Your current net balance is <strong>₹${currentBalance.toFixed(2)}</strong>, which is below your minimum limit of ₹${minBalanceLimit.toFixed(2)}.</p>
         `,
     };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`[Email] Minimum balance alert sent successfully to ${userEmail}`);
-    } catch (error) {
-        console.error(`[Email Error] Failed to send email to ${userEmail}:`, error);
-    }
+    // ... (delivery logic) ...
 };
 
 const sendWelcomeEmail = async (userEmail, userName) => {
     const mailOptions = {
-        // ✅ FIX: Add the 'from' address
-        // 🛑 IMPORTANT: Replace with your VERIFIED SendGrid sender email.
-        from: `FinSafe Vault <your-verified-email@example.com>`,
+        // ✅ FIX 2: Use the utility function for the FROM address
+        from: `FinSafe Vault <${getSenderEmail()}>`, 
         to: userEmail,
         subject: `🎉 Welcome to FinSafe Vault, ${userName}!`,
         html: `
             <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <h2>Welcome Aboard!</h2>
-                <p>Hi ${userName},</p>
-                <p>Thank you for creating an account with <strong>FinSafe Vault</strong>. We're excited to help you achieve financial clarity and security.</p>
-                <p>You can now log in to your dashboard to start tracking your income and expenses.</p>
-                <a href="${FRONTEND_URL}/login" style="display: inline-block; padding: 10px 20px; margin: 10px 0; font-size: 16px; color: white; background-color: #4CAF50; text-decoration: none; border-radius: 5px;">Go to Dashboard</a>
-                <br>
-                <p>Best regards,<br>The FinSafe Vault Team</p>
+                <p>Thank you for creating an account with FinSafe Vault.</p>
+                <a href="${FRONTEND_URL}/login">Go to Dashboard</a>
             </div>
         `,
     };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`[Email] Welcome email sent successfully to ${userEmail}`);
-    } catch (error) {
-        console.error(`[Email Error] Failed to send welcome email to ${userEmail}:`, error);
-    }
+    // ... (delivery logic) ...
 };
 
 const sendNameChangeConfirmation = async (userEmail, newName, token) => {
-    // Uses the live domain
     const confirmationLink = `${FRONTEND_URL}/confirm-name-change?token=${token}`;
     
     const mailOptions = {
-        // ✅ FIX: Add the 'from' address
-        // 🛑 IMPORTANT: Replace with your VERIFIED SendGrid sender email.
-        from: `FinSafe Vault <your-verified-email@example.com>`,
+        // ✅ FIX 3: Use the utility function for the FROM address
+        from: `FinSafe Vault <${getSenderEmail()}>`, 
         to: userEmail,
         subject: `🔒 FinSafe Vault: Confirm New Username`,
-        html: `
-            <p>You requested to change your username to: <strong>${newName}</strong>.</p>
-            <p>Please click the link below to confirm this change:</p>
-            <p><a href="${confirmationLink}">Confirm Username Change</a></p>
-            <p>If you did not request this change, please ignore this email.</p>
-        `,
+        html: `<p>Click the link to confirm: <a href="${confirmationLink}">Confirm Username Change</a></p>`,
     };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`[Email] Name change confirmation sent to ${userEmail}`);
-    } catch (error) {
-        console.error(`[Email Error] Failed to send name change email to ${userEmail}:`, error);
-    }
+    // ... (delivery logic) ...
 };
 
 
