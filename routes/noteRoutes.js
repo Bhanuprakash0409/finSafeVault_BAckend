@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getNotes,
-  createNote,
-  updateNote,
-  deleteNote,
-} = require('../controllers/noteController');
+    getNotes,
+    createNote,
+    updateNote,
+    deleteNote,
+} = require('../controllers/noteController'); // ✅ FIX: Correctly import from noteController
 const { protect } = require('../middleware/authMiddleware');
 
 router.route('/').get(protect, getNotes).post(protect, createNote);
