@@ -126,22 +126,6 @@ exports.addTransaction = async (req, res) => {
 
     const savedTransaction = await newTransaction.save();
 
-    // ----------------------------------------------------
-    // ➡️ MINIMUM BALANCE CHECK LOGIC
-    // ----------------------------------------------------
-    // Get user details directly from the request object (attached by 'protect' middleware)
-    const { minBalance: minBalanceLimit, email, name } = req.user;
-    const minBalanceValue = minBalanceLimit !== undefined 
-      ? minBalanceLimit 
-      : 0;
-    
-    const currentBalance = await calculateNetBalance(req.user._id);
-
-    // Send Alert if balance is below the defined limit AND the user has set an email
-    if (currentBalance < minBalanceValue && email) {
-        await sendMinBalanceAlert(email, name, currentBalance, minBalanceValue);
-    }
-
     res.status(201).json(savedTransaction);
   } catch (error) {
     console.error('Error adding transaction or checking balance:', error); 
